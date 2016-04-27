@@ -1,27 +1,30 @@
 function image_analysis()
     clear
     close
-    base_path = pwd();
+    base_path = "/home/zank/git/Image_analysis";
     att_faces = "/att_faces";
     ext = '.pgm';
-//    learning(base_path,att_faces,ext,nb);
-    test(base_path,strcat([base_path,att_faces,'/s1/6',ext]));
+    nb = 5;
+    learning(base_path,att_faces,ext,nb);
+//    test(base_path,strcat([base_path,att_faces,'/s1/2',ext]),nb);
 endfunction
 
 function learning(base_path,att_faces,ext,nb)
     T = loadImages(strcat([base_path,att_faces]),nb,ext);
-    [m,s] = prepareNormalization
-    [T_second] = normalization(T,m,s);
+    [m,s] = prepareNormalization(T);
+    T_second = normalization(T,m,s);
     eigenfaces = analysisPC(T_second);
     D = projection(T_second,eigenfaces);
+    
     storeData(strcat([base_path,'/data']),m,'m');
     storeData(strcat([base_path,'/data']),s,'s');
     storeData(strcat([base_path,'/data']),eigenfaces,'eigenfaces');
     storeData(strcat([base_path,'/data']),D, 'D');
 endfunction
 
-function test(base_path,img)
+function test(base_path,img,nb)
     image_test = chargerImage(img,0);
+    afficherImage(image_test);
     image_test = transformIntoVector(image_test);
     m = loadData(strcat([base_path,'/data/']),'m');
     s = loadData(strcat([base_path,'/data/']),'s');
@@ -29,7 +32,8 @@ function test(base_path,img)
     D = loadData(strcat([base_path,'/data/']),'D');
     image_test = normalization(image_test,m,s);
     image_test = projection(image_test,eigenfaces);
-    decision(image_test,D);
+    class = decision(image_test,D,nb);
+    disp(class);
 endfunction
 
 function T = loadImages(base_path,nbImages,ext)
@@ -74,20 +78,37 @@ function vector = transformIntoVector(m)
 endfunction
 
 function eigenfaces = analysisPC(T_second)
+    disp('EIGENFACES GENERATION');
     stacksize('max')
     cov_T_Second = cov(T_second);
-    [U,S,V] = svd(T_second);
-    eigenfaces = V(:,[1:1:48]);
+    [U,S,V] = svd(T_second,0);
+    [eigVec, eigVal] = spec(cov_T_Second);
+    eigenfaces = eigVec(:,[1:1:48]);
+    //TODO ISSUE eigenfaces pas bon du tout http://www.pages.drexel.edu/~sis26/Eigencode.htm
+    disp('GENERATION DONE');
 endfunction
 
 function D = projection(vec, eigenfaces)
     D = vec * eigenfaces;
 endfunction
 
-function decision(vector,D)
-    for i =0 : size(D,1)
-        vector = [vector(1:$, :);D(i,:);]
+function class = decision(vector,D,nb)
+    class = 0;
+    for i =1 : size(D,1)
+//        vector = [vector(1:$, :);D(i,:);]
+//        n = norm(vector);
+//        if i>1 & n < n_pre then
+//            n_pre = n;
+//            c = i;
+//        else
+//            n_pre = n;
+//            c = i;
+//        end
+        if vector == D(i,:) then
+            class = i;
+        end
     end
+    class = ceil(class/nb);
 endfunction
 
 
