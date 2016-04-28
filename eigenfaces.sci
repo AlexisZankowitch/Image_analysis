@@ -5,38 +5,47 @@ function image_analysis()
     att_faces = "/att_faces";
     ext = '.pgm';
     nb = 5;
-    learning(base_path,att_faces,ext,nb);
-//    test(base_path,strcat([base_path,att_faces,'/s1/2',ext]),nb);
+//    learning(base_path,att_faces,ext,nb);
+    test(base_path,strcat([base_path,att_faces,'/s1/2',ext]),nb);
 endfunction
 
 function learning(base_path,att_faces,ext,nb)
-    T = loadImages(strcat([base_path,att_faces]),nb,ext);
+    path_data = strcat([base_path,'/data/']);
+    [T,classes] = loadImages(strcat([base_path,att_faces]),nb,ext);
     [m,s] = prepareNormalization(T);
+    img1=matrix(T(7*5,:),56,46);
+    afficherImage(img1);
     T_second = normalization(T,m,s);
     eigenfaces = analysisPC(T_second);
     D = projection(T_second,eigenfaces);
-    
-    storeData(strcat([base_path,'/data']),m,'m');
-    storeData(strcat([base_path,'/data']),s,'s');
-    storeData(strcat([base_path,'/data']),eigenfaces,'eigenfaces');
-    storeData(strcat([base_path,'/data']),D, 'D');
+
+    storeData(path_data,classes','classes');
+    storeData(path_data,m,'m');
+    storeData(path_data,s,'s');
+    storeData(path_data,eigenfaces,'eigenfaces');
+    storeData(path_data,D, 'D');
 endfunction
 
 function test(base_path,img,nb)
+    path_data = strcat([base_path,'/data/']);
+    d = 'double';
+    str = 'string';
     image_test = chargerImage(img,0);
-    afficherImage(image_test);
+//    afficherImage(image_test);
     image_test = transformIntoVector(image_test);
-    m = loadData(strcat([base_path,'/data/']),'m');
-    s = loadData(strcat([base_path,'/data/']),'s');
-    eigenfaces = loadData(strcat([base_path,'/data/']),'eigenfaces');
-    D = loadData(strcat([base_path,'/data/']),'D');
+    m = loadData(path_data,'m',d);
+    s = loadData(path_data,'s',d);
+    eigenfaces = loadData(path_data,'eigenfaces',d);
+    D = loadData(path_data,'D',d);
+    classes = loadData(path_data, 'classes',str);
     image_test = normalization(image_test,m,s);
     image_test = projection(image_test,eigenfaces);
     class = decision(image_test,D,nb);
-    disp(class);
+    disp("classe :");
+    disp(classes(class));
 endfunction
 
-function T = loadImages(base_path,nbImages,ext)
+function [T,folders] = loadImages(base_path,nbImages,ext)
     folders = ls(base_path);
     folders_images = "";
     images = string(1);
@@ -46,7 +55,7 @@ function T = loadImages(base_path,nbImages,ext)
             images = [images(1:$, :); strcat([folders_images,string(j),ext]);];
         end
     end
-//    T Creation
+    //T Creation
     img = chargerImage(images(2),0);
     img = transformIntoVector(img);
     T = zeros(size(folders,1)*nbImages,size(img,2));
@@ -70,21 +79,23 @@ function [T_second] = normalization(T,m,s)
     s1 = repmat(s, size(T,1), 1);
     T_second = T-m1;
     T_second = T_second ./ s1;
+    
+//    img1=matrix(T(1,:),56,46);
+//    img2=matrix(T_second(1,:),56,46);
+//    afficherImage([img1 img2]);
 endfunction
 
 function vector = transformIntoVector(m)
     m = imresize(m,0.5);
-    vector = m(:)';
+    vector = matrix(m,size(m,1)*size(m,2),1)';
 endfunction
 
 function eigenfaces = analysisPC(T_second)
     disp('EIGENFACES GENERATION');
     stacksize('max')
     cov_T_Second = cov(T_second);
-    [U,S,V] = svd(T_second,0);
     [eigVec, eigVal] = spec(cov_T_Second);
     eigenfaces = eigVec(:,[1:1:48]);
-    //TODO ISSUE eigenfaces pas bon du tout http://www.pages.drexel.edu/~sis26/Eigencode.htm
     disp('GENERATION DONE');
 endfunction
 
@@ -95,6 +106,8 @@ endfunction
 function class = decision(vector,D,nb)
     class = 0;
     for i =1 : size(D,1)
+        //TODO http://www.pages.drexel.edu/~sis26/Eigencode.htm
+        //calculate euclidienen dist
 //        vector = [vector(1:$, :);D(i,:);]
 //        n = norm(vector);
 //        if i>1 & n < n_pre then
@@ -123,9 +136,14 @@ function storeData(path,data,name)
     cd('../');
 endfunction
 
-function data = loadData(path,name)
+function data = loadData(path,name,obj_type)
+    //issue csvread string || double :o
     cd(path);
-    data = csvRead(name);
+    if obj_type == 'double' then
+        data = csvRead(name);
+    elseif obj_type == 'string' then 
+        data = read_csv(name);
+    end
     cd('../');
 endfunction
 
