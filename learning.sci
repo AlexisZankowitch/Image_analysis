@@ -1,6 +1,7 @@
 function learning(nbImages)
     
-    T = loadImages(strcat([base_path,att_faces]));
+    disp('EIGENFACES GENERATION');
+    T = loadImages(strcat([base_path,att_faces]),nbImages);
     [m,s] = prepareNormalization(T);
     T_second = normalization(T,m,s);
     eigenfaces = analysisPC(T_second);

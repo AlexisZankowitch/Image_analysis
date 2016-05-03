@@ -16,17 +16,10 @@ function vector = transformIntoVector(m)
 endfunction
 
 function eigenfaces = analysisPC(T_second)
-    disp('EIGENFACES GENERATION');
     cov_T_Second = cov(T_second);
-    disp("cov");
     [u,s,v] = svd(cov_T_Second,0);
-    disp("svd");
     //afficher lamba pour justifier le 48
-//    disp(size(u));
-//    disp(size(s));
-//    disp(size(v));
     eigenfaces = u(:,[1:1:48]);
-    disp('GENERATION DONE');
 endfunction
 
 function D = projection(vec, eigenfaces)

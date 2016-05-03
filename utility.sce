@@ -52,14 +52,15 @@ function image = ecrireImage(matrix_image,nomFichier)
 endfunction
 
 
-function T = loadImages(base_path)
+function T = loadImages(base_path,nbImages)
     folders_images = "";
     images = string(1);
     imgs = grand(1, "prm", (1:10));
     imgs = imgs(1:1:nbImages);
-    for i = 1 : size(classes,1)
+    
+    for i = 1 : size(classes,2)
         folders_images = strcat([base_path,'/',classes(i),'/']);
-        for j = 1 : size(imgs,1)
+        for j = 1 : size(imgs,2)
             images = [images(1:$, :); strcat([folders_images,string(imgs(j)),ext]);];
         end
     end
@@ -74,7 +75,9 @@ function T = loadImages(base_path)
         img = transformIntoVector(img);
         T(i,:) = img(1,:);
     end
-    
+//    disp(imgs);
+//    disp(images)
+//    disp(size(images))
     //test
     if size(imgs,2) == nbImages then
         //save to load only images that we didn't use to create learning base

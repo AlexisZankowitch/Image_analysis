@@ -1,4 +1,5 @@
 function [l,c] = test(s_class , n_img)
+    
     d = 'double';
     str = 'string';
     img = strcat([base_path,att_faces,'/',s_class,'/',n_img,ext])
@@ -13,11 +14,10 @@ function [l,c] = test(s_class , n_img)
     
     image_test_n = normalization(image_test_v,m,s);
     image_test_p = projection(image_test_n,eigenfaces);
-    class = decision(image_test_p,D,max_img);
-    
+    class = decision(image_test_p,D,max_imgs);
     
 //    disp("class :");
-//    disp(classes(class));
+//    disp(strcat([s_class, ' / ', classes(class)]));
 //    img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(class),'/1',ext]),0);
     //try to decide with n nearer neighbours 
 //    afficherImage([img_decision image_test]);
