@@ -3,46 +3,54 @@ function image_analysis()
     close
     base_path = "/home/zank/git/Image_analysis";
     att_faces = "/att_faces";
+    path_data = strcat([base_path,'/data/']);
     ext = '.pgm';
-    nb = 5;
-//    learning(base_path,att_faces,ext,nb);
-    test(base_path,strcat([base_path,att_faces,'/s1/2',ext]),nb);
+    nb = 3;
+    learning(base_path,att_faces,path_data,ext,nb);
+//    test(base_path,att_faces,path_data,strcat([base_path,att_faces,'/s37/8',ext]),nb,ext);
 endfunction
 
-function learning(base_path,att_faces,ext,nb)
-    path_data = strcat([base_path,'/data/']);
+function learning(base_path,att_faces,path_data,ext,nb)
+    stacksize('max')
+        
     [T,classes] = loadImages(strcat([base_path,att_faces]),nb,ext);
     [m,s] = prepareNormalization(T);
-    img1=matrix(T(7*5,:),56,46);
-    afficherImage(img1);
     T_second = normalization(T,m,s);
     eigenfaces = analysisPC(T_second);
     D = projection(T_second,eigenfaces);
-
     storeData(path_data,classes','classes');
     storeData(path_data,m,'m');
     storeData(path_data,s,'s');
     storeData(path_data,eigenfaces,'eigenfaces');
     storeData(path_data,D, 'D');
+    
+    //affichage
+    m = resizeImg(m);
+    s = resizeImg(s);
+    e = resizeEigenfaces(eigenfaces)
+    afficherImage([m s e]);
 endfunction
 
-function test(base_path,img,nb)
-    path_data = strcat([base_path,'/data/']);
+function test(base_path,att_faces,path_data,img,nb,ext)
     d = 'double';
     str = 'string';
     image_test = chargerImage(img,0);
-//    afficherImage(image_test);
-    image_test = transformIntoVector(image_test);
+    image_test_v = transformIntoVector(image_test);
     m = loadData(path_data,'m',d);
     s = loadData(path_data,'s',d);
     eigenfaces = loadData(path_data,'eigenfaces',d);
     D = loadData(path_data,'D',d);
     classes = loadData(path_data, 'classes',str);
-    image_test = normalization(image_test,m,s);
-    image_test = projection(image_test,eigenfaces);
-    class = decision(image_test,D,nb);
+    image_test_n = normalization(image_test_v,m,s);
+    image_test_p = projection(image_test_n,eigenfaces);
+    class = decision(image_test_p,D,nb);
     disp("classe :");
     disp(classes(class));
+    img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(class),'/1',ext]),0);
+    disp(size(img_decision));
+    disp(size(image_test));
+    afficherImage([img_decision image_test]);
+    
 endfunction
 
 function [T,folders] = loadImages(base_path,nbImages,ext)
@@ -66,7 +74,6 @@ function [T,folders] = loadImages(base_path,nbImages,ext)
         img = transformIntoVector(img);
         T(i,:) = img(1,:);
     end
-    //add test to check size
 endfunction
 
 function [m,s] = prepareNormalization(T)
@@ -79,10 +86,6 @@ function [T_second] = normalization(T,m,s)
     s1 = repmat(s, size(T,1), 1);
     T_second = T-m1;
     T_second = T_second ./ s1;
-    
-//    img1=matrix(T(1,:),56,46);
-//    img2=matrix(T_second(1,:),56,46);
-//    afficherImage([img1 img2]);
 endfunction
 
 function vector = transformIntoVector(m)
@@ -94,8 +97,8 @@ function eigenfaces = analysisPC(T_second)
     disp('EIGENFACES GENERATION');
     stacksize('max')
     cov_T_Second = cov(T_second);
-    [eigVec, eigVal] = spec(cov_T_Second);
-    eigenfaces = eigVec(:,[1:1:48]);
+    [u,s,v] = svd(cov_T_Second,0);
+    eigenfaces = u(:,[1:1:48]);
     disp('GENERATION DONE');
 endfunction
 
@@ -105,24 +108,24 @@ endfunction
 
 function class = decision(vector,D,nb)
     class = 0;
-    for i =1 : size(D,1)
-        //TODO http://www.pages.drexel.edu/~sis26/Eigencode.htm
-        //calculate euclidienen dist
-//        vector = [vector(1:$, :);D(i,:);]
-//        n = norm(vector);
-//        if i>1 & n < n_pre then
-//            n_pre = n;
-//            c = i;
-//        else
-//            n_pre = n;
-//            c = i;
-//        end
-        if vector == D(i,:) then
-            class = i;
-        end
-    end
-    class = ceil(class/nb);
+    D_img = repmat(vector, size(D,1),1);
+    D_img = D_img - D;
+    [D_img,c] = min(diag(D_img * D_img'));
+    //finds index
+    class = ceil(c/nb);
 endfunction
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -154,6 +157,20 @@ function matrix_image=chargerImage(path,isRGB)
     else
         matrix_image=double(rgb2gray(imread(path)));
     end
+endfunction
+
+function imgs = resizeEigenfaces(eigenfaces)
+    imgs = [];
+    eigenfaces_show = eigenfaces * 1000 + 128;
+    for i = 1 : size(eigenfaces_show,2)
+        img = matrix(eigenfaces_show(:,i),56,46);
+        imgs = [imgs img]
+    end
+    afficherImage(imgs)
+endfunction
+
+function img = resizeImg(vector,str)
+    img=matrix(vector,56,46);
 endfunction
 
 //Show image
