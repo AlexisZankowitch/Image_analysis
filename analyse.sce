@@ -11,7 +11,7 @@ function [T_second] = normalization(T,m,s)
 endfunction
 
 function vector = transformIntoVector(m)
-    m = imresize(m,0.5);
+    m = imresize(m,[56 46]);
     vector = matrix(m,size(m,1)*size(m,2),1)';
 endfunction
 
@@ -26,12 +26,11 @@ function D = projection(vec, eigenfaces)
     D = vec * eigenfaces;
 endfunction
 
-function class = decision(vector,D,nb)
+function [dist,class] = decision(vector,D,nb)
     class = 0;
     D_img = repmat(vector, size(D,1),1);
     D_img = D_img - D;
-    [D_img,c] = min(diag(D_img * D_img'));
+    [dist,c] = min(diag(D_img * D_img'));
     //finds index
     class = ceil(c/nb);
-    disp(class)
 endfunction

@@ -52,6 +52,25 @@ function image = ecrireImage(matrix_image,nomFichier)
 endfunction
 
 
+function [T,path_img] = loadTestFacesImages(path)
+    cd(path)
+    path_img = ls();
+    img = chargerImage(path_img(1),1);
+    img = transformIntoVector(img);
+    T = zeros(size(path_img,1),size(img,2));
+    T(1,:) = img(1,:);
+    if(size(path_img,1) > 1) then
+        for i = 2 : size(path_img,1)
+            img = chargerImage(path_img(i),1);
+            img = transformIntoVector(img);
+            T(i,:) = img(1,:);
+        end
+    end
+    
+    cd('../')
+endfunction
+
+//improvement would be nice with cd etc...
 function [T,nb_item] = loadImages(base_path,nbImages)
     //TEST
     for i = 1 : size(classes,2)
@@ -71,6 +90,7 @@ function [T,nb_item] = loadImages(base_path,nbImages)
             images = [images(1:$, :); strcat([folders_images(i),string(imgs(j)),ext]);];
         end
     end
+    disp(images);
     //T Creation
     img = chargerImage(images(2),0);
     img = transformIntoVector(img);

@@ -15,7 +15,6 @@ function overallAccuracy(max_imgs)
         disp(strcat(['time :', string(toc())]));
         imgs = loadData(path_data,'imgs','double');
         
-        
         //TESTING
         test_images = getOtherImages(nb_folders)
         
@@ -84,4 +83,23 @@ function startRecognition()
     img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(class),'/1',ext]),0);
     afficherImage([img_decision image_test]);
     
+endfunction
+
+function faceOrNotFace()
+    
+    //imporvement use big img and visagedetect
+    //resizeImg(a, [56 46])
+    //
+    
+    [base_path,att_faces,path_data,ext,classes] = initialization();
+    imgs_used = loadData(path_data,'imgs','double');
+    
+    [imgs,img_name] = loadTestFacesImages(strcat([base_path,"/img_test"]));
+    images = []
+    for i=1 : size(imgs,1)
+        [dist,c] = testFace(imgs(i,:),size(imgs_used,2))
+        disp(strcat([img_name(i)," :" , string(dist), " classe: ", classes(c)]))
+        images = [images resizeImg(imgs(i,:))]
+    end
+    afficherImage(images)
 endfunction
