@@ -33,4 +33,5 @@ function class = decision(vector,D,nb)
     [D_img,c] = min(diag(D_img * D_img'));
     //finds index
     class = ceil(c/nb);
+    disp(class)
 endfunction

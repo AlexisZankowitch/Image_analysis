@@ -1,13 +1,8 @@
-function image_analysis(max_imgs)
-    stacksize('max')
-    base_path = "/home/zank/git/Image_analysis";
-    att_faces = "/att_faces";
-    path_data = strcat([base_path,'/data/']);
-    ext = '.pgm';
+function overallAccuracy(max_imgs)
+    
+    [base_path,att_faces,path_data,ext,classes] = initialization();
+    
     overall_accuracy = zeros(1,max_imgs);
-    classes = ls(strcat([base_path att_faces]));
-    storeData(path_data,classes','classes');
-    classes = loadData(path_data,'classes','string');
     
     disp(strcat(['Start image analysis with  :',string(max_imgs),' image(s)']));
     for i = 1 : max_imgs
@@ -16,22 +11,13 @@ function image_analysis(max_imgs)
         disp(strcat(['learning :',string(i)]));
         confusion_matrix = zeros(size(classes,2),size(classes,2));
         tic();
-        learning(i);
+        [m,s,eigenfaces,nb_item] = learning(i);
         disp(strcat(['time :', string(toc())]));
         imgs = loadData(path_data,'imgs','double');
         
         
         //TESTING
-        
-        //number of elements per class
-        images = [1:1:10];
-        test_images = [];
-        //get other images
-        for j = 1 : size(images,2)
-            if isempty(find(imgs==images(j))) then
-                test_images = [test_images images(j)]
-            end
-        end
+        test_images = getOtherImages(nb_folders)
         
         //load other images
         tic();
@@ -57,4 +43,45 @@ function image_analysis(max_imgs)
     disp(overall_accuracy);
     plot(overall_accuracy,"rx-");
     xtitle("overall accuracy")
+endfunction
+
+function startLearning(max_imgs)
+    [base_path,att_faces,path_data,ext,classes] = initialization();
+    tic();
+    [m,s,eigenfaces] = learning(max_imgs);
+    disp(strcat(['time :', string(toc())]));
+    
+    m = resizeImg(m);
+    s = resizeImg(s);
+    eigenfaces = resizeEigenfaces(eigenfaces)
+    afficherImage([m s eigenfaces]);
+endfunction
+
+function startRecognition()
+    
+    [base_path,att_faces,path_data,ext,classes] = initialization();
+    
+    imgs_used = loadData(path_data,'imgs','double');
+    classes = loadData(path_data,'classes','string');
+    n_class = size(classes,2) + 1;
+    n_img = imgs_used(1);
+
+    while (size(classes,2)<n_class)
+        n_class = input(strcat(["choose a class between 1 and ",string(size(classes,2)),": "]));
+    end
+    n_class = strcat(["s",string(n_class)]);
+    
+    while(find(imgs_used==n_img))
+        disp(["Images used :"]);
+        disp(imgs_used);
+        n_img = input("Choose a different image than those which have been used: ");
+    end
+    
+    [l,class,image_test] = test(n_class,string(n_img),size(imgs_used,2));
+    
+    disp("class :");
+    disp(strcat([n_class, ' / ', classes(class)]));
+    img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(class),'/1',ext]),0);
+    afficherImage([img_decision image_test]);
+    
 endfunction
