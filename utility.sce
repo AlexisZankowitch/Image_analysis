@@ -8,7 +8,7 @@ function storeData(path,data,name)
 endfunction
 
 function data = loadData(path,name,obj_type)
-    //issue csvread string || double :o
+    //issue csvread string || double :o fixes -> obj_type
     cd(path);
     if obj_type == 'double' then
         data = csvRead(name);
@@ -30,8 +30,8 @@ endfunction
 function imgs = resizeEigenfaces(eigenfaces)
     imgs = [];
     eigenfaces_show = eigenfaces * 1000 + 128;
-    for i = 1 : size(eigenfaces_show,2)
-        img = matrix(eigenfaces_show(:,i),56,46);
+    for ii = 1 : size(eigenfaces_show,2)
+        img = matrix(eigenfaces_show(:,ii),56,46);
         imgs = [imgs img]
     end
     afficherImage(imgs)
@@ -78,6 +78,7 @@ function T = loadImages(base_path,nbImages)
 //    disp(imgs);
 //    disp(images)
 //    disp(size(images))
+
     //test
     if size(imgs,2) == nbImages then
         //save to load only images that we didn't use to create learning base

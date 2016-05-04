@@ -1,4 +1,4 @@
-function [l,c] = test(s_class , n_img)
+function [l,c] = test(s_class , n_img, nb_imgs)
     
     d = 'double';
     str = 'string';
@@ -14,7 +14,7 @@ function [l,c] = test(s_class , n_img)
     
     image_test_n = normalization(image_test_v,m,s);
     image_test_p = projection(image_test_n,eigenfaces);
-    class = decision(image_test_p,D,max_imgs);
+    class = decision(image_test_p,D,nb_imgs);
     
 //    disp("class :");
 //    disp(strcat([s_class, ' / ', classes(class)]));

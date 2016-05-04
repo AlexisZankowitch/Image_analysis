@@ -11,12 +11,17 @@ function image_analysis(max_imgs)
     
     disp(strcat(['Start image analysis with  :',string(max_imgs),' image(s)']));
     for i = 1 : max_imgs
+        
+        //LEARNING
         disp(strcat(['learning :',string(i)]));
         confusion_matrix = zeros(size(classes,2),size(classes,2));
         tic();
         learning(i);
         disp(strcat(['time :', string(toc())]));
         imgs = loadData(path_data,'imgs','double');
+        
+        
+        //TESTING
         
         //number of elements per class
         images = [1:1:10];
@@ -33,13 +38,12 @@ function image_analysis(max_imgs)
         disp('TEST');
         for k = 1 : size(classes,2)
             for j = 1 : size(test_images,2)
-                [l,c] = test(classes(1,k),string(test_images(1,j)));
+                [l,c] = test(classes(1,k),string(test_images(1,j)),i);
                 confusion_matrix(l,c) = confusion_matrix(l,c) + 1;
             end
         end
         disp(strcat(['time :', string(toc())]));
         
-        //ISSUE when more than one image is used to create learning base
         overall_accuracy(1,i) = trace(confusion_matrix)/sum(confusion_matrix)
         
         //test
@@ -51,5 +55,6 @@ function image_analysis(max_imgs)
     end
     disp("overall_accuracy");
     disp(overall_accuracy);
-    plot(overall_accuracy);
+    plot(overall_accuracy,"rx-");
+    xtitle("overall accuracy")
 endfunction
