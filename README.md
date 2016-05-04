@@ -8,7 +8,7 @@ change base_path variable by your path ptah to this directory.
 ```
 overallAccuracy(n)
 ```
-Test overall accuracy 
+>Test overall accuracy 
 
   - n : int 
   
