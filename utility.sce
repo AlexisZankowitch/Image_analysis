@@ -51,65 +51,60 @@ function image = ecrireImage(matrix_image,nomFichier)
     image=imwrite(matrix_image,nomFichier);
 endfunction
 
-
-function [T,path_img] = loadTestFacesImages(path)
+//load all images
+function [T,images] = loadTestFacesImages(path)
     cd(path)
-    path_img = ls();
-    img = chargerImage(path_img(1),1);
-    img = transformIntoVector(img);
-    T = zeros(size(path_img,1),size(img,2));
-    T(1,:) = img(1,:);
-    if(size(path_img,1) > 1) then
-        for i = 2 : size(path_img,1)
-            img = chargerImage(path_img(i),1);
-            img = transformIntoVector(img);
-            T(i,:) = img(1,:);
-        end
-    end
-    
+    images = ls();
+    T = tCreation(images);
     cd('../')
 endfunction
 
-//improvement would be nice with cd etc...
-function [T,nb_item] = loadImages(base_path,nbImages)
+//load rand nbImages per class
+function T = loadImages(base_path,nbImages)
+    images ="";
+    
     //TEST
     for i = 1 : size(classes,2)
-        folders_images(i) = strcat([base_path,'/',classes(i),'/']);
-        nb_item(i) = size(ls(folders_images),1);
-        if nb_item(i) < nbImages then
+        folders_images = strcat([base_path,'/',classes(i),'/']);
+        items = ls(folders_images);
+        if size(items,1) < nbImages then
             error(['Not enough images into foldes -- loadImages';folders_images]);
         end
+        //random
+        rn = grand(1, "prm", (1:size(items,1)));
+        rn = rn(1:1:nbImages);
+        
+        for j = 1 : size(rn,2)
+            //fill images with all the path we need
+            images = [images strcat([folders_images,items(rn(j))]);];
+            imgs(i,j) = items(rn(j));
+        end;
     end
-    
-    images = string(1);
-    imgs = grand(1, "prm", (1:min(nb_item)));
-    imgs = imgs(1:1:nbImages);
-    
-    for i = 1 : size(folders_images,1)
-        for j = 1 : size(imgs,2)
-            images = [images(1:$, :); strcat([folders_images(i),string(imgs(j)),ext]);];
-        end
-    end
-    disp(images);
-    //T Creation
-    img = chargerImage(images(2),0);
-    img = transformIntoVector(img);
-    T = zeros(size(classes,1)*nbImages,size(img,2));
-    T(1,:) = img(1,:);
-    for i = 2 : size(images,1)-1
-        img = chargerImage(images(i+1),0);
-        img = transformIntoVector(img);
-        T(i,:) = img(1,:);
-    end
+//    delete first line
+    images(1) = []
+    images = images';
+    T = tCreation(images);
     
     //TEST
     if size(imgs,2) == nbImages then
         //save to load only images that we didn't use to create learning base
         storeData(path_data,imgs,'imgs');
-        disp(["Images used :"]);
-        disp(imgs)
     else 
         error('Wrong size imgs -- loadImages');
+    end
+endfunction
+
+//T Creation
+function T = tCreation(images)
+    img = chargerImage(images(1),0);
+    //issue img fonf size x y z damn !! maybe try catch ? :o
+    img = transformIntoVector(img);
+    T = zeros(size(classes,1)*nbImages,size(img,2));
+    T(1,:) = img(1,:);
+    for i = 2 : size(images,1)
+        img = chargerImage(images(i),0);
+        img = transformIntoVector(img);
+        T(i,:) = img(1,:);
     end
 endfunction
 
@@ -125,13 +120,13 @@ function test_images = getOtherImages(nb_folders)
     end
 endfunction
 
-function [base_path,att_faces,path_data,ext,classes] = initialization()
+function [base_path,att_faces,path_data,classes,imgs_used] = initialization()
     stacksize('max')
     base_path = "/home/zank/git/Image_analysis";
     att_faces = "/att_faces";
     path_data = strcat([base_path,'/data/']);
-    ext = '.pgm';
     classes = ls(strcat([base_path att_faces]));
     storeData(path_data,classes','classes');
     classes = loadData(path_data,'classes','string');
+    imgs_used = loadData(path_data,'imgs','double');
 endfunction

@@ -1,4 +1,4 @@
-function [l,c,image_test] = test(s_class , n_img, nb_imgs)
+function [l,c,image_test,dist] = test(s_class , n_img, nb_imgs)
     
     [m,s,eigenfaces,D,classes] = getDatas()
     

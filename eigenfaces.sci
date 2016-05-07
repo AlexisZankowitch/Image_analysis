@@ -11,7 +11,7 @@ function overallAccuracy(max_imgs)
         disp(strcat(['learning :',string(i)]));
         confusion_matrix = zeros(size(classes,2),size(classes,2));
         tic();
-        [m,s,eigenfaces,nb_item] = learning(i);
+        [m,s,eigenfaces] = learning(i);
         disp(strcat(['time :', string(toc())]));
         imgs = loadData(path_data,'imgs','double');
         
@@ -45,49 +45,63 @@ function overallAccuracy(max_imgs)
 endfunction
 
 function startLearning(max_imgs)
-    [base_path,att_faces,path_data,ext,classes] = initialization();
+    [base_path,att_faces,path_data,classes] = initialization();
     tic();
     [m,s,eigenfaces] = learning(max_imgs);
     disp(strcat(['time :', string(toc())]));
-    
     m = resizeImg(m);
     s = resizeImg(s);
     eigenfaces = resizeEigenfaces(eigenfaces)
     afficherImage([m s eigenfaces]);
 endfunction
 
+//TODO img_used changed go to line x to get imgs_used by class
+
 function startRecognition()
     
-    [base_path,att_faces,path_data,ext,classes] = initialization();
+    [base_path,att_faces,path_data,ext,classes,imgs_used] = initialization();
     
-    imgs_used = loadData(path_data,'imgs','double');
-    classes = loadData(path_data,'classes','string');
+    
     n_class = size(classes,2) + 1;
     n_img = imgs_used(1);
 
+
+//    choose class
     while (size(classes,2)<n_class)
         n_class = input(strcat(["choose a class between 1 and ",string(size(classes,2)),": "]));
     end
-    n_class = strcat(["s",string(n_class)]);
+    n_class = strcat(["/s",string(n_class)]);
     
-    while(find(imgs_used==n_img))
-        disp(["Images used :"]);
-        disp(imgs_used);
-        n_img = input("Choose a different image than those which have been used: ");
+//    while(find(imgs_used==n_img))
+//        disp(["Images used :"]);
+//        disp(imgs_used);
+//        n_img = input("Choose a different image than those which have been used: ");
+//    end
+    
+    class_path = strcat([base_path,att_faces,n_class]);
+    imgs_class = ls(class_path);
+    for i = 1 : size(imgs_class,1)
+        if ~isempty(find(imgs_used==imgs_class(i))) then
+            disp(strcat([class_path,'/',imgs_class(i)]))
+        else
+            disp("aze")
+        end
+//        [l,class,image_test,dist] = testFace(strcat([class_path,'/',imgs_class(i)]),size(imgs_used,2));
     end
     
-    [l,class,image_test] = test(n_class,string(n_img),size(imgs_used,2));
-    
-    disp("class :");
-    disp(strcat([n_class, ' / ', classes(class)]));
-    img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(class),'/1',ext]),0);
-    afficherImage([img_decision image_test]);
+//    [l,class,image_test,dist] = test(n_class,string(n_img),size(imgs_used,2));
+//    
+//    disp("class :");
+//    disp(strcat([n_class, ' / ', classes(class)]));
+//    disp(strcat(["dist :",string(dist)]));
+//    img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(class),'/1',ext]),0);
+//    afficherImage([img_decision image_test]);
     
 endfunction
 
 function faceOrNotFace()
     
-    //imporvement use big img and visagedetect
+    //improvement use big img and visagedetect
     //resizeImg(a, [56 46])
     //
     
