@@ -105,7 +105,7 @@ function faceOrNotFace()
     //resizeImg(a, [56 46])
     //
     
-    [base_path,att_faces,path_data,ext,classes] = initialization();
+    [base_path,att_faces,path_data,classes] = initialization();
     imgs_used = loadData(path_data,'imgs','double');
     
     [imgs,img_name] = loadTestFacesImages(strcat([base_path,"/img_test"]));

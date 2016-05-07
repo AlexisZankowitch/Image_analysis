@@ -10,9 +10,11 @@ function [T_second] = normalization(T,m,s)
     T_second = T_second ./ s1;
 endfunction
 
-function vector = transformIntoVector(m)
-    m = imresize(m,[56 46]);
-    vector = matrix(m,size(m,1)*size(m,2),1)';
+function vector = transformIntoVector(v)
+    v = v(:,:,1);
+    disp(size(v))
+    v = imresize(v,[56 46]);
+    vector = matrix(v,size(v,1)*size(v,2),1)';
 endfunction
 
 function eigenfaces = analysisPC(T_second)

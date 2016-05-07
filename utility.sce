@@ -55,7 +55,7 @@ endfunction
 function [T,images] = loadTestFacesImages(path)
     cd(path)
     images = ls();
-    T = tCreation(images);
+    T = tCreation(images,size(images,1));
     cd('../')
 endfunction
 
@@ -83,7 +83,7 @@ function T = loadImages(base_path,nbImages)
 //    delete first line
     images(1) = []
     images = images';
-    T = tCreation(images);
+    T = tCreation(images,nbImages);
     
     //TEST
     if size(imgs,2) == nbImages then
@@ -95,9 +95,8 @@ function T = loadImages(base_path,nbImages)
 endfunction
 
 //T Creation
-function T = tCreation(images)
+function T = tCreation(images,nbImages)
     img = chargerImage(images(1),0);
-    //issue img fonf size x y z damn !! maybe try catch ? :o
     img = transformIntoVector(img);
     T = zeros(size(classes,1)*nbImages,size(img,2));
     T(1,:) = img(1,:);
