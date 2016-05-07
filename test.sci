@@ -1,14 +1,12 @@
-function [l,c,image_test,dist] = test(s_class , n_img, nb_imgs)
+function [c,image_test,dist] = test(img, nb_imgs)
     
     [m,s,eigenfaces,D,classes] = getDatas()
     
-    img = strcat([base_path,att_faces,'/',s_class,'/',n_img,ext])
     image_test = chargerImage(img,0);
     image_test_v = transformIntoVector(image_test);
     
     [dist,class] = decided(image_test_v)
     
-    l = find(classes==s_class);
     c = class;
 endfunction
 

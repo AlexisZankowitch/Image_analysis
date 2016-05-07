@@ -12,7 +12,6 @@ endfunction
 
 function vector = transformIntoVector(v)
     v = v(:,:,1);
-    disp(size(v))
     v = imresize(v,[56 46]);
     vector = matrix(v,size(v,1)*size(v,2),1)';
 endfunction

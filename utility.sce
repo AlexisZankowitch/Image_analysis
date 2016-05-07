@@ -127,5 +127,5 @@ function [base_path,att_faces,path_data,classes,imgs_used] = initialization()
     classes = ls(strcat([base_path att_faces]));
     storeData(path_data,classes','classes');
     classes = loadData(path_data,'classes','string');
-    imgs_used = loadData(path_data,'imgs','double');
+    imgs_used = loadData(path_data,'imgs','string');
 endfunction

@@ -18,12 +18,14 @@ function overallAccuracy(max_imgs)
         //TESTING
         test_images = getOtherImages(nb_folders)
         
-        //load other images
+        //load other images TODO imgs_used randomized every lines
         tic();
         disp('TEST');
         for k = 1 : size(classes,2)
             for j = 1 : size(test_images,2)
+                //todo test has changed
                 [l,c] = test(classes(1,k),string(test_images(1,j)),i);
+                l = find(classes==s_class);//clalculate l here
                 confusion_matrix(l,c) = confusion_matrix(l,c) + 1;
             end
         end
@@ -56,11 +58,9 @@ function startLearning(max_imgs)
 endfunction
 
 //TODO img_used changed go to line x to get imgs_used by class
-
 function startRecognition()
-    
-    [base_path,att_faces,path_data,ext,classes,imgs_used] = initialization();
-    
+    imgs=[];
+    [base_path,att_faces,path_data,classes,imgs_used] = initialization();
     
     n_class = size(classes,2) + 1;
     n_img = imgs_used(1);
@@ -70,32 +70,26 @@ function startRecognition()
     while (size(classes,2)<n_class)
         n_class = input(strcat(["choose a class between 1 and ",string(size(classes,2)),": "]));
     end
-    n_class = strcat(["/s",string(n_class)]);
     
-//    while(find(imgs_used==n_img))
-//        disp(["Images used :"]);
-//        disp(imgs_used);
-//        n_img = input("Choose a different image than those which have been used: ");
-//    end
-    
-    class_path = strcat([base_path,att_faces,n_class]);
+    n_class = strcat(["s",string(n_class)]);
+    class_path = strcat([base_path,att_faces,'/',n_class]);
     imgs_class = ls(class_path);
+    
     for i = 1 : size(imgs_class,1)
-        if ~isempty(find(imgs_used==imgs_class(i))) then
-            disp(strcat([class_path,'/',imgs_class(i)]))
-        else
-            disp("aze")
+        if isempty(find(imgs_used(find(classes==n_class),:)==imgs_class(i))) then
+            [class,image_test,dist] = test(strcat([class_path,'/',imgs_class(i)]),size(imgs_used,2));
+            distance(i)=dist;
+            //todo check if dist = 0 isn't a mistake :/
+            img_class(i) = class;
+            disp("class :");
+            disp(strcat([n_class, ' / ', classes(class)]));
+            disp(strcat(["dist :",string(dist)]));
+            imgs = [imgs image_test]
         end
-//        [l,class,image_test,dist] = testFace(strcat([class_path,'/',imgs_class(i)]),size(imgs_used,2));
     end
     
-//    [l,class,image_test,dist] = test(n_class,string(n_img),size(imgs_used,2));
-//    
-//    disp("class :");
-//    disp(strcat([n_class, ' / ', classes(class)]));
-//    disp(strcat(["dist :",string(dist)]));
-//    img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(class),'/1',ext]),0);
-//    afficherImage([img_decision image_test]);
+    img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(class),'/1.pgm']),0);//todo don't like 1.pgm :o
+    afficherImage([img_decision imgs]);
     
 endfunction
 
