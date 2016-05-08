@@ -12,4 +12,3 @@ function [m,s,eigenfaces] = learning(nbImages)
     storeData(path_data,D, 'D');
 
 endfunction
-
