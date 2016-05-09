@@ -12,3 +12,14 @@ function [m,s,eigenfaces] = learning(nbImages)
     storeData(path_data,D, 'D');
 
 endfunction
+
+function startLearning(max_imgs)
+    [base_path,att_faces,path_data,classes] = initialization();
+    tic();
+    [m,s,eigenfaces] = learning(max_imgs);
+    disp(strcat(['time :', string(toc())]));
+    m = resizeImg(m);
+    s = resizeImg(s);
+    eigenfaces = resizeEigenfaces(eigenfaces)
+    afficherImage([m s eigenfaces]);
+endfunction

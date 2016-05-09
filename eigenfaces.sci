@@ -42,17 +42,6 @@ function overallAccuracy(max_imgs)
     xtitle("overall accuracy")
 endfunction
 
-function startLearning(max_imgs)
-    [base_path,att_faces,path_data,classes] = initialization();
-    tic();
-    [m,s,eigenfaces] = learning(max_imgs);
-    disp(strcat(['time :', string(toc())]));
-    m = resizeImg(m);
-    s = resizeImg(s);
-    eigenfaces = resizeEigenfaces(eigenfaces)
-    afficherImage([m s eigenfaces]);
-endfunction
-
 //ISSUE with img that are not in database...mais c'est un peu normal wesh
 function faceOrNotFace()
     
