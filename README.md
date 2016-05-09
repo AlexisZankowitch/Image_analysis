@@ -8,18 +8,22 @@ change base_path variable by your path ptah to this directory.
 ```
 overallAccuracy(n)
 ```
->Test overall accuracy 
+>Test overall accuracy, return a figure of the overall accuracy of the recognition per class
 
-  - n : int 
-  
-  - 1 .. n : image used to build learning base. 
+  - n : (int) images used to build learning base. 
 
 ```
 startLearning(n)
 ```
->Makes learning base with n images per classes
+>Makes learning base with n images per classes, creates files : eigenfaces, D, m, s, img_used, classes
 
 ```
-startRecognition()
+startRecognition(class)
 ```
->Use this command to manualy test
+>Use this command to test one class
+  - class : (int) class number
+
+```
+startAllRecognition()
+```
+>Use this command to test recognition on all classes, return a figure of the overall distance per class **need improvement **
