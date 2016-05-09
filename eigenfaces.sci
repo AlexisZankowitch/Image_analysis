@@ -1,6 +1,6 @@
 function overallAccuracy(max_imgs)
     
-    [base_path,att_faces,path_data,ext,classes] = initialization();
+    [base_path,att_faces,path_data,classes,imgs_used] = initialization();
     
     overall_accuracy = zeros(1,max_imgs);
     
@@ -13,32 +13,28 @@ function overallAccuracy(max_imgs)
         tic();
         [m,s,eigenfaces] = learning(i);
         disp(strcat(['time :', string(toc())]));
-        imgs = loadData(path_data,'imgs','double');
         
-        //TESTING
-        test_images = getOtherImages(nb_folders)
-        
-        //load other images TODO imgs_used randomized every lines
+        //load other images imgs_used randomized every lines
         tic();
         disp('TEST');
         for k = 1 : size(classes,2)
-            for j = 1 : size(test_images,2)
-                //todo test has changed
-                [l,c] = test(classes(1,k),string(test_images(1,j)),i);
-                l = find(classes==s_class);//clalculate l here
-                confusion_matrix(l,c) = confusion_matrix(l,c) + 1;
+            [distance,img_classes] = startRecognition(classes(1,k));
+            for l = 1 : size(img_classes,1)
+                x = find(classes==classes(1,k));
+                confusion_matrix(x,img_classes(l)) = confusion_matrix(x,img_classes(l)) + 1;
             end
         end
         disp(strcat(['time :', string(toc())]));
         
         overall_accuracy(1,i) = trace(confusion_matrix)/sum(confusion_matrix)
-        
+///////////////////////////////TODO/////////////////////////////////////////////
         //test
-        sum_th = size(classes,2) * size(test_images,2);
-        sum_re = sum(confusion_matrix);
-        if sum_th ~= sum_re then
-            error('Wrong size imgs into confusion Matrix--');
-        end
+//        sum_th = size(classes,2) * size(test_images,2);
+//        sum_re = sum(confusion_matrix);
+//        if sum_th ~= sum_re then
+//            error('Wrong size imgs into confusion Matrix--');
+//        end
+///////////////////////////////TODO/////////////////////////////////////////////
     end
     disp("overall_accuracy");
     disp(overall_accuracy);

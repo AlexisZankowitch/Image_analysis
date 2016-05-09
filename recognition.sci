@@ -1,3 +1,5 @@
+
+//NOT VERY USEFULL ANYMORE 
 function [c,image_test,dist] = test(path_img, nb_imgs)
     
     [m,s,eigenfaces,D,classes] = getDatas()
@@ -33,9 +35,10 @@ function [m,s,eigenfaces,D,classes] = getDatas()
 endfunction
 
 //TODO RETURN classes table
-function [distances,class] = recognition(n_class)
+function [distances,img_classes] = recognition(n_class)
     imgs=[];
     imgs_not_used=[];
+    imgs_decision=[];
     if isempty(find(classes==n_class)) then
         error('class does not exist');
     end
@@ -51,16 +54,19 @@ function [distances,class] = recognition(n_class)
     end
     
     for i = 1 : size(imgs_not_used,2)
-        [class,image_test,dist] = test(strcat([class_path,'/',imgs_class(i)]),size(imgs_used,2));
+        [c,image_test,dist] = test(strcat([class_path,'/',imgs_class(i)]),size(imgs_used,2));
         distances(i)=dist;
         //todo check if dist = 0 isn't a mistake :/
-        str = strcat([n_class, ' / ', classes(class)]);
+        str = strcat([n_class, ' / ', classes(c)]);
 //            disp(strcat(["image :",imgs_class(i)]) strcat(["dist :",string(dist)]) strcat(["class :",str]));
+        img_classes(i)=c;
+        img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(c),'/1.pgm']),0);//todo don't like 1.pgm
+        imgs = [imgs img_decision];
         imgs = [imgs image_test];
     end
     
-//    img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(class),'/1.pgm']),0);//todo don't like 1.pgm :o
-//    afficherImage([img_decision imgs]);
+    
+    afficherImage(imgs);
     
 endfunction
 
@@ -74,21 +80,23 @@ function threshold = startAllRecognition()
         dist=recognition(classes(1,i));
         distances = [distances dist];
         mean_distances(i)=mean(dist);
-        waitbar(i/size(classes,2)),winH);
+        waitbar(i/size(classes,2),winH);
     end
     close(winH);
-    
-    //y construction yep I know not very sexy.... =D
+    //////////////////////////TODO/////////////////////////////////////////////
+    //y construction yep I know not very sexy.... =D and not right 
     c = 0;
     y = [];
     for i=1:size(classes,2)*size(imgs_used,2)
-        if modulo(i,size(imgs_used,2))=1 then
+        if modulo(i,size(imgs_used,2))==1 then
             c = c+1;
         end
         y = [y c];
     end
     y = matrix(y,size(imgs_used,2),size(classes,2))
     
+    //trace dist/class because there might be some mistakes
+    //////////////////////////TODO/////////////////////////////////////////////
     //plot
     plot(y,distances,'o-')
     plot([1:1:size(classes,2)],mean_distances,'x-');
@@ -97,11 +105,13 @@ function threshold = startAllRecognition()
     threshold = mean(distances);
 endfunction
 
-function threshold = startRecognition(n_class)
+function [threshold,img_classes] = startRecognition(n_class)
     [base_path,att_faces,path_data,classes,imgs_used] = initialization();
     checkClasses();
-    n_class = strcat(['s',string(n_class)]);
-    dist = recognition(classes(find(classes==n_class)));
+    if isnum(string(n_class)) then
+        n_class = strcat(['s',string(n_class)]);
+    end
+    [dist,img_classes] = recognition(classes(find(classes==n_class)));
     threshold = mean(dist);
 endfunction
 
