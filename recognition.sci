@@ -10,6 +10,7 @@ function [c,image_test,dist] = test(path_img, nb_imgs)
     
     c = class;
 endfunction
+//
 
 function [dist,class] = decided(image_test_v)
     image_test_n = normalization(image_test_v,m,s);
@@ -73,35 +74,25 @@ endfunction
 function threshold = startAllRecognition()
     [base_path,att_faces,path_data,classes,imgs_used] = initialization();
     checkClasses();
-    distances = []
     
     winH=waitbar('Recognition in progress');
     for i=1:size(classes,2)
-        dist=recognition(classes(1,i));
-        distances = [distances dist];
+        [dist,img_class]=recognition(classes(1,i));
+        distances(i,:) = dist'
         mean_distances(i)=mean(dist);
+        img_classes(i,:) = img_class';
         waitbar(i/size(classes,2),winH);
     end
+    disp(size(distances)) //distances de chaque img
+    disp(size(img_classes)) //classe de chaque image    
     close(winH);
-    //////////////////////////TODO/////////////////////////////////////////////
-    //y construction yep I know not very sexy.... =D and not right 
-    c = 0;
-    y = [];
-    for i=1:size(classes,2)*size(imgs_used,2)
-        if modulo(i,size(imgs_used,2))==1 then
-            c = c+1;
-        end
-        y = [y c];
-    end
-    y = matrix(y,size(imgs_used,2),size(classes,2))
-    
-    //trace dist/class because there might be some mistakes
-    //////////////////////////TODO/////////////////////////////////////////////
+///////////////////////////////TODO/////////////////////////////////////////////
+//      Trace a figure per class but it will be a lot of figure wesh
+///////////////////////////////TODO/////////////////////////////////////////////
     //plot
-    plot(y,distances,'o-')
+    plot(img_classes,distances,'-')//figure not really readable :/
     plot([1:1:size(classes,2)],mean_distances,'x-');
     xtitle("Distance and mean per class","class","distance");
-    
     threshold = mean(distances);
 endfunction
 

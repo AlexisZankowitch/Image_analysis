@@ -33,5 +33,8 @@ function [dist,class] = decision(vector,D,nb)
     D_img = D_img - D;
     [dist,c] = min(diag(D_img * D_img'));
     //finds index
+///////////////////////////////TODO/////////////////////////////////////////////
+// create table size D each line contains class of D
+///////////////////////////////TODO/////////////////////////////////////////////
     class = ceil(c/nb);
 endfunction
