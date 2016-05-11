@@ -50,7 +50,9 @@ function faceOrNotFace()
     //improvement use big img and visagedetect
     //resizeImg(a, [56 46])
     //
-    
+///////////////////////////////TODO/////////////////////////////////////////////
+//      threshold ?
+///////////////////////////////TODO/////////////////////////////////////////////
 //    threshold = startRecognition();
     winH=waitbar('Work in progress');
     percent = 0;
@@ -70,19 +72,15 @@ function faceOrNotFace()
             percent = grothWaitBar(percent,10*size(imgs,1),winH);
         end
 //        afficherImage(images)
-    disp(percent)
 end
-///////////////////////////////TODO/////////////////////////////////////////////
-//      Legends
-///////////////////////////////TODO/////////////////////////////////////////////
     figure
-    plot(distances,'o-');
+    plot2d([1:1:size(distances,1)],distances([1:1:$],:),[1:1:size(distances,2)]);
     xtitle('distance / nb Image learning base','nb image learning base','distance')
-    legends(img_name,opt=2, font_size=1)
+    legends(img_name(1:1:$,1),[1:1:size(distances,2)],opt='lr')
     figure
-    plot(img_classes,'o');
+    plot2d([1:1:size(img_classes,1)],img_classes([1:1:$],:),[1:1:size(distances,2)]);
     xtitle('classes / nb Image learning base','nb image learning base','classes')
-    legends(img_name)
+    legends(img_name(1:1:$,1),[1:1:size(img_classes,2)],opt='lr')
     close(winH);
 endfunction
 
