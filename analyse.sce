@@ -38,3 +38,20 @@ function [dist,class] = decision(vector,D,nb)
 ///////////////////////////////TODO/////////////////////////////////////////////
     class = ceil(c/nb);
 endfunction
+
+///////////////////////////////TODO/////////////////////////////////////////////
+//      Reconstruct img wesh issue WITH RECONSTRUCT
+///////////////////////////////TODO/////////////////////////////////////////////
+function imgs = imageReconstruction(img_pro)
+    //Img reconstruction
+    [m,s,eigenfaces,D,classes] = getDatas()
+    m1 = repmat(m, size(eigenfaces,1),1);
+    s1 = repmat(s, size(eigenfaces,1),1);
+    imgs = []
+    for i=1:size(img_pro,1)
+        img_pro_rec = eigenfaces*img_pro(i,:)'; 
+        img_pro_rec = img_pro_rec' * s1';
+        img_pro_rec = img_pro_rec + m;
+        imgs = [imgs resizeImg(img_pro_rec)]
+    end
+endfunction

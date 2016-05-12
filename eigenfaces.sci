@@ -9,24 +9,21 @@ function overallAccuracy(max_imgs)
     for i = 1 : max_imgs
         
         //LEARNING
-        perCent = perCent + i;
         disp(strcat(['learning :',string(i)]));
         confusion_matrix = zeros(size(classes,2),size(classes,2));
         tic();
         [m,s,eigenfaces] = learning(i);
         disp(strcat(['time :', string(toc())]));
-        waitbar(perCent/max_imgs*size(classes,2),winH);
         
         tic();
         disp('TEST');
         for k = 1 : size(classes,2)
-            perCent= perCent + k;
             [distance,img_classes] = startRecognition(classes(1,k));
             for l = 1 : size(img_classes,1)
                 x = find(classes==classes(1,k));
                 confusion_matrix(x,img_classes(l)) = confusion_matrix(x,img_classes(l)) + 1;
             end
-            waitbar(perCent/max_imgs*size(classes,2),winH);
+            grothWaitBar(percent,max_imgs*size(classes,2),winH)
         end
         disp(strcat(['time :', string(toc())]));
         overall_accuracy(1,i) = trace(confusion_matrix)/sum(confusion_matrix)
@@ -45,43 +42,53 @@ function overallAccuracy(max_imgs)
 endfunction
 
 //ISSUE with img that are not in database...mais c'est un peu normal wesh
-function faceOrNotFace()
+function faceDetection()
     
     //improvement use big img and visagedetect
     //resizeImg(a, [56 46])
     //
 ///////////////////////////////TODO/////////////////////////////////////////////
-//      threshold ?
+//      threshold ? try to reconstruct the image and calculte dist between 
+//      original and recreate
 ///////////////////////////////TODO/////////////////////////////////////////////
 //    threshold = startRecognition();
+    
+    
     winH=waitbar('Work in progress');
+    [base_path,att_faces,path_data,classes] = initialization();
     percent = 0;
-    for k = 1 : 10 
+    for k = 10 : 10 
 //        startLearning(k);
-        [base_path,att_faces,path_data,classes] = initialization();
         imgs_used = loadData(path_data,'imgs','double');
         [imgs,img_name] = loadTestFacesImages(strcat([base_path,"/img_test"]));
         images = []
         
         for i=1 : size(imgs,1)
-            [dist,c] = testFace(imgs(i,:),size(imgs_used,2))
-//            disp(strcat([img_name(i)," :" , string(dist), " classe: ", classes(c)]))
+            [dist,c,image_test_p] = testFace(imgs(i,:),size(imgs_used,2))
+            img_pro(i,:)=image_test_p;
             images = [images resizeImg(imgs(i,:))]
             distances(k,i)=dist;
             img_classes(k,i)=c;
             percent = grothWaitBar(percent,10*size(imgs,1),winH);
         end
 //        afficherImage(images)
-end
+    end
+    close(winH);
+    
     figure
-    plot2d([1:1:size(distances,1)],distances([1:1:$],:),[1:1:size(distances,2)]);
+    plot2d([1:1:size(distances,1)],distances([1:1:$],:),([1:1:size(distances,2)]));
     xtitle('distance / nb Image learning base','nb image learning base','distance')
     legends(img_name(1:1:$,1),[1:1:size(distances,2)],opt='lr')
     figure
-    plot2d([1:1:size(img_classes,1)],img_classes([1:1:$],:),[1:1:size(distances,2)]);
+    plot([1:1:size(img_classes,1)],img_classes([1:1:$],:),([1:1:size(img_classes,2)]));
+    //it would be perfect if the data was traced with dots.... but I don't know how to do it :/
     xtitle('classes / nb Image learning base','nb image learning base','classes')
-    legends(img_name(1:1:$,1),[1:1:size(img_classes,2)],opt='lr')
-    close(winH);
+    legends(img_name(1:1:$,1),([1:1:size(img_classes,2)]),opt='lr')
+   
+    imgs = imageReconstruction(img_pro);
+    
+    afficherImage(imgs)
+   
 endfunction
 
 function percent = grothWaitBar(percent,fac,winH)

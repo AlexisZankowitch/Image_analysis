@@ -1,27 +1,27 @@
-
-//NOT VERY USEFULL ANYMORE 
-function [c,image_test,dist] = test(path_img, nb_imgs)
+//test path img
+function [c,image_test,dist,image_test_p] = test(path_img, nb_imgs)
     
     [m,s,eigenfaces,D,classes] = getDatas()
     image_test = chargerImage(path_img,0);
     image_test_v = transformIntoVector(image_test);
     
-    [dist,class] = decided(image_test_v)
+    [dist,class,image_test_p] = decided(image_test_v)
     
     c = class;
 endfunction
 //
 
-function [dist,class] = decided(image_test_v)
+function [dist,class,image_test_p] = decided(image_test_v)
     image_test_n = normalization(image_test_v,m,s);
     image_test_p = projection(image_test_n,eigenfaces);
     [dist,class] = decision(image_test_p,D,nb_imgs);
 endfunction
 
-function [dist,class] = testFace(img,nb_imgs)
+//test vector img
+function [dist,class,image_test_p] = testFace(img,nb_imgs)
     
     [m,s,eigenfaces,D,classes] = getDatas()
-    [dist,class] = decided(img)
+    [dist,class,image_test_p] = decided(img)
     
 endfunction
 
@@ -36,7 +36,7 @@ function [m,s,eigenfaces,D,classes] = getDatas()
 endfunction
 
 //TODO RETURN classes table
-function [distances,img_classes] = recognition(n_class)
+function [distances,img_classes,img_pro,imgs] = recognition(n_class)
     imgs=[];
     imgs_not_used=[];
     imgs_decision=[];
@@ -55,19 +55,21 @@ function [distances,img_classes] = recognition(n_class)
     end
     
     for i = 1 : size(imgs_not_used,2)
-        [c,image_test,dist] = test(strcat([class_path,'/',imgs_class(i)]),size(imgs_used,2));
+        [c,image_test,dist,image_test_p] = test(strcat([class_path,'/',imgs_class(i)]),size(imgs_used,2));
         distances(i)=dist;
         //todo check if dist = 0 isn't a mistake :/
         str = strcat([n_class, ' / ', classes(c)]);
 //            disp(strcat(["image :",imgs_class(i)]) strcat(["dist :",string(dist)]) strcat(["class :",str]));
         img_classes(i)=c;
         img_decision = chargerImage(strcat([base_path,att_faces,'/',classes(c),'/1.pgm']),0);//todo don't like 1.pgm
-        imgs = [imgs img_decision];
-        imgs = [imgs image_test];
+        //must resize img because img_pro.size = (56,46)
+        imgs = [imgs imresize(img_decision,0.5)];
+        imgs = [imgs imresize(image_test,0.5)];
+        img_pro(i,:)=image_test_p;
     end
     
     
-    afficherImage(imgs);
+//    afficherImage(imgs);
     
 endfunction
 
@@ -102,8 +104,12 @@ function [threshold,img_classes] = startRecognition(n_class)
     if isnum(string(n_class)) then
         n_class = strcat(['s',string(n_class)]);
     end
-    [dist,img_classes] = recognition(classes(find(classes==n_class)));
+    [dist,img_classes,image_test_p,imgs] = recognition(classes(find(classes==n_class)));
     threshold = mean(dist);
+    
+    //img reconstruction
+    imgs = [imgs imageReconstruction(image_test_p)];
+    afficherImage(imgs);
 endfunction
 
 function checkClasses()
