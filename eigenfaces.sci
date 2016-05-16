@@ -41,14 +41,14 @@ function overallAccuracy(max_imgs)
     xtitle("overall accuracy")
 endfunction
 
-//ISSUE with img that are not in database...mais c'est un peu normal wesh
-function faceDetection()
+function faceDetection(nb_imgs_base)
     
     //improvement use big img and visagedetect
     //resizeImg(a, [56 46])
     //
 ///////////////////////////////TODO/////////////////////////////////////////////
-//      threshold ? try to reconstruct the image and calculte dist between 
+//      threshold ? 
+//      calculte dist between 
 //      original and recreate
 ///////////////////////////////TODO/////////////////////////////////////////////
 //    threshold = startRecognition();
@@ -57,8 +57,8 @@ function faceDetection()
     winH=waitbar('Work in progress');
     [base_path,att_faces,path_data,classes] = initialization();
     percent = 0;
-    for k = 10 : 10 
-//        startLearning(k);
+    for k = nb_imgs_base
+        startLearning(k);
         imgs_used = loadData(path_data,'imgs','double');
         [imgs,img_name] = loadTestFacesImages(strcat([base_path,"/img_test"]));
         images = []
@@ -71,7 +71,6 @@ function faceDetection()
             img_classes(k,i)=c;
             percent = grothWaitBar(percent,10*size(imgs,1),winH);
         end
-//        afficherImage(images)
     end
     close(winH);
     
