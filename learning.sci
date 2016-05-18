@@ -20,7 +20,4 @@ function startLearning(max_imgs)
     disp(strcat(['time :', string(toc())]));
     m = resizeImg(m);
     s = resizeImg(s);
-    disp(size(eigenfaces));
-    eigenfaces = resizeEigenfaces(eigenfaces)
-    afficherImage([m s eigenfaces]);
 endfunction

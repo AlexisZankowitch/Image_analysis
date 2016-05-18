@@ -39,9 +39,6 @@ function [dist,class] = decision(vector,D,nb)
     class = ceil(c/nb);
 endfunction
 
-///////////////////////////////TODO/////////////////////////////////////////////
-//      Reconstruct img wesh issue WITH RECONSTRUCT
-///////////////////////////////TODO/////////////////////////////////////////////
 function imgs = imageReconstruction(img_pro)
     //Img reconstruction
     [m,s,eigenfaces,D,classes] = getDatas()
