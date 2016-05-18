@@ -1,6 +1,9 @@
+//calculate mean and standard deviation of T
 function [m,s] = prepareNormalization(T)
     m = mean(T,1);
     s = stdev(T,1);
+    storeData(path_data,m,'m');
+    storeData(path_data,s,'s');
 endfunction
 
 function [T_second] = normalization(T,m,s)   
@@ -16,15 +19,17 @@ function vector = transformIntoVector(v)
     vector = matrix(v,size(v,1)*size(v,2),1)';
 endfunction
 
-function eigenfaces = analysisPC(T_second)
+function eigenfaces = pcAnalysis(T_second)
     cov_T_Second = cov(T_second);
     [u,s,v] = svd(cov_T_Second,0);
     //afficher lamba pour justifier le 48
     eigenfaces = u(:,[1:1:48]);
+    storeData(path_data,eigenfaces,'eigenfaces');
 endfunction
 
 function D = projection(vec, eigenfaces)
     D = vec * eigenfaces;
+    storeData(path_data,D, 'D');
 endfunction
 
 function [dist,class] = decision(vector,D,nb)
@@ -39,6 +44,7 @@ function [dist,class] = decision(vector,D,nb)
     class = ceil(c/nb);
 endfunction
 
+// reconstructs image from image's descriptor
 function imgs = imageReconstruction(img_pro)
     //Img reconstruction
     [m,s,eigenfaces,D,classes] = getDatas()

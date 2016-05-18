@@ -1,4 +1,19 @@
-//test path img
+// starts recognition for images of a class which were not used to make descriptors
+function [threshold,img_classes] = startRecognition(n_class)
+    [base_path,att_faces,path_data,classes,imgs_used] = initialization();
+    checkClasses();
+    if isnum(string(n_class)) then
+        n_class = strcat(['s',string(n_class)]);
+    end
+    [dist,img_classes,image_test_p,imgs] = recognition(classes(find(classes==n_class)));
+    threshold = mean(dist);
+    
+    //img reconstruction
+    imgs = [imgs imageReconstruction(image_test_p)];
+    afficherImage(imgs);
+endfunction
+
+// recogntition for one image
 function [c,image_test,dist,image_test_p] = test(path_img, nb_imgs)
     
     [m,s,eigenfaces,D,classes] = getDatas()
@@ -9,8 +24,8 @@ function [c,image_test,dist,image_test_p] = test(path_img, nb_imgs)
     
     c = class;
 endfunction
-//
 
+// returns the class of an image
 function [dist,class,image_test_p] = decided(image_test_v)
     image_test_n = normalization(image_test_v,m,s);
     image_test_p = projection(image_test_n,eigenfaces);
@@ -73,6 +88,7 @@ function [distances,img_classes,img_pro,imgs] = recognition(n_class)
     
 endfunction
 
+// starts recognition for all classes
 function threshold = startAllRecognition()
     [base_path,att_faces,path_data,classes,imgs_used] = initialization();
     checkClasses();
@@ -98,24 +114,11 @@ function threshold = startAllRecognition()
     threshold = mean(distances);
 endfunction
 
-function [threshold,img_classes] = startRecognition(n_class)
-    [base_path,att_faces,path_data,classes,imgs_used] = initialization();
-    checkClasses();
-    if isnum(string(n_class)) then
-        n_class = strcat(['s',string(n_class)]);
-    end
-    [dist,img_classes,image_test_p,imgs] = recognition(classes(find(classes==n_class)));
-    threshold = mean(dist);
-    
-    //img reconstruction
-    imgs = [imgs imageReconstruction(image_test_p)];
-    afficherImage(imgs);
-endfunction
-
+// test if classes are initialized
 function checkClasses()
     check =ls(strcat([base_path,att_faces]))';
     if size(classes,2) ~= size(check,2) then
-        error('Eigenfaces not initialzied -- use startLearning(x)')
+        error('Classes not initialzied -- use startLearning(x)')
     end
 endfunction
 

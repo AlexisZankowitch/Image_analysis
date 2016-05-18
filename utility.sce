@@ -1,5 +1,15 @@
-//UTILITY FUNCTIONS
+function [base_path,att_faces,path_data,classes,imgs_used] = initialization()
+    stacksize('max')
+    base_path = "/home/zank/git/Image_analysis";
+    att_faces = "/att_faces";
+    path_data = strcat([base_path,'/data/']);
+    classes = ls(strcat([base_path att_faces]));
+    storeData(path_data,classes','classes');
+    classes = loadData(path_data,'classes','string');
+    imgs_used = loadData(path_data,'imgs','string');
+endfunction
 
+//UTILITY FUNCTIONS
 function storeData(path,data,name)
     mkdir(path);
     cd(path);
@@ -27,6 +37,7 @@ function matrix_image=chargerImage(path,isRGB)
     end
 endfunction
 
+// transfrom eigenfaces to be displayable 
 function imgs = resizeEigenfaces(eigenfaces)
     imgs = [];
     eigenfaces_show = eigenfaces * 1000 + 128;
@@ -37,6 +48,7 @@ function imgs = resizeEigenfaces(eigenfaces)
     afficherImage(imgs)
 endfunction
 
+// resize image, image size must be 56.x,46.y
 function img = resizeImg(vector,str)
     img=matrix(vector,56,46);
 endfunction
@@ -51,7 +63,7 @@ function image = ecrireImage(matrix_image,nomFichier)
     image=imwrite(matrix_image,nomFichier);
 endfunction
 
-//load all images
+//load all images from test folder and return T
 function [T,images] = loadTestFacesImages(path)
     cd(path)
     images = ls();
@@ -59,18 +71,19 @@ function [T,images] = loadTestFacesImages(path)
     cd('../')
 endfunction
 
-//load rand nbImages per class
+// loads nbImages randomly chosen per class and return T
+// stores imgs a csv containing which img have been used
 function T = loadImages(base_path,nbImages)
     images ="";
     
-    //TEST
     for i = 1 : size(classes,2)
         folders_images = strcat([base_path,'/',classes(i),'/']);
         items = ls(folders_images);
+        //TEST
         if size(items,1) < nbImages then
             error(['Not enough images into foldes -- loadImages';folders_images]);
         end
-        //random
+        //randomization
         rn = grand(1, "prm", (1:size(items,1)));
         rn = rn(1:1:nbImages);
         
@@ -117,15 +130,4 @@ function test_images = getOtherImages(nb_folders)
             test_images = [test_images images(j)]
         end
     end
-endfunction
-
-function [base_path,att_faces,path_data,classes,imgs_used] = initialization()
-    stacksize('max')
-    base_path = "/home/zank/git/Image_analysis";
-    att_faces = "/att_faces";
-    path_data = strcat([base_path,'/data/']);
-    classes = ls(strcat([base_path att_faces]));
-    storeData(path_data,classes','classes');
-    classes = loadData(path_data,'classes','string');
-    imgs_used = loadData(path_data,'imgs','string');
 endfunction
