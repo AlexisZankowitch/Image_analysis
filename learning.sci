@@ -8,6 +8,11 @@ function [m,s,eigenfaces] = learning(nbImages)
     T_second = normalization(T,m,s);
     eigenfaces = pcAnalysis(T_second);
     D = projection(T_second,eigenfaces);
+    
+    storeData(path_data,D, 'D');
+    storeData(path_data,m,'m');
+    storeData(path_data,s,'s');
+    storeData(path_data,eigenfaces,'eigenfaces');
 endfunction
 
 
@@ -19,4 +24,6 @@ function startLearning(max_imgs)
     disp(strcat(['time :', string(toc())]));
     m = resizeImg(m);
     s = resizeImg(s);
+    afficherImage(resizeEigenfaces(eigenfaces));
+    
 endfunction

@@ -1,5 +1,14 @@
 // starts recognition for images of a class which were not used to make descriptors
-function [threshold,img_classes] = startRecognition(n_class)
+function startRecognition(n_class)
+    [threshold,img_classes,image_test_p,imgs,classes]=launchRecognition(n_class)
+    //img reconstruction
+    imgs = [imgs imageReconstruction(image_test_p)];
+    afficherImage(imgs);
+    disp(classes(img_classes))
+endfunction
+
+// without display
+function [threshold,img_classes,image_test_p,imgs,classes] = launchRecognition(n_class)
     [base_path,att_faces,path_data,classes,imgs_used] = initialization();
     checkClasses();
     if isnum(string(n_class)) then
@@ -7,10 +16,6 @@ function [threshold,img_classes] = startRecognition(n_class)
     end
     [dist,img_classes,image_test_p,imgs] = recognition(classes(find(classes==n_class)));
     threshold = mean(dist);
-    
-    //img reconstruction
-    imgs = [imgs imageReconstruction(image_test_p)];
-    afficherImage(imgs);
 endfunction
 
 // recogntition for one image
@@ -43,6 +48,9 @@ endfunction
 function [m,s,eigenfaces,D,classes] = getDatas()
     d = 'double';
     str = 'string';
+    if size(ls(path_data),1) == 1 then
+        error('Eigenfaces are not initialized');
+    end
     m = loadData(path_data,'m',d);
     s = loadData(path_data,'s',d);
     eigenfaces = loadData(path_data,'eigenfaces',d);
@@ -55,12 +63,17 @@ function [distances,img_classes,img_pro,imgs] = recognition(n_class)
     imgs=[];
     imgs_not_used=[];
     imgs_decision=[];
+    //TEST
     if isempty(find(classes==n_class)) then
         error('class does not exist');
-    end
+    end    
     
     class_path = strcat([base_path,att_faces,'/',n_class]);
     imgs_class = ls(class_path);
+    //TEST
+    if size(imgs_used,2)==size(imgs_class,1) then
+        error('there is no images left');
+    end
     
     //delete imgs_used
     for i = 1 : size(imgs_class,1)
@@ -82,10 +95,6 @@ function [distances,img_classes,img_pro,imgs] = recognition(n_class)
         imgs = [imgs imresize(image_test,0.5)];
         img_pro(i,:)=image_test_p;
     end
-    
-    
-//    afficherImage(imgs);
-    
 endfunction
 
 // starts recognition for all classes

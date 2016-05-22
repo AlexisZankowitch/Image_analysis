@@ -2,8 +2,6 @@
 function [m,s] = prepareNormalization(T)
     m = mean(T,1);
     s = stdev(T,1);
-    storeData(path_data,m,'m');
-    storeData(path_data,s,'s');
 endfunction
 
 function [T_second] = normalization(T,m,s)   
@@ -24,12 +22,10 @@ function eigenfaces = pcAnalysis(T_second)
     [u,s,v] = svd(cov_T_Second,0);
     //afficher lamba pour justifier le 48
     eigenfaces = u(:,[1:1:48]);
-    storeData(path_data,eigenfaces,'eigenfaces');
 endfunction
 
 function D = projection(vec, eigenfaces)
     D = vec * eigenfaces;
-    storeData(path_data,D, 'D');
 endfunction
 
 function [dist,class] = decision(vector,D,nb)

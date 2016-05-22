@@ -6,7 +6,12 @@ function [base_path,att_faces,path_data,classes,imgs_used] = initialization()
     classes = ls(strcat([base_path att_faces]));
     storeData(path_data,classes','classes');
     classes = loadData(path_data,'classes','string');
-    imgs_used = loadData(path_data,'imgs','string');
+    imgs_used = [];
+    try
+        imgs_used = loadData(path_data,'imgs','string');
+    catch 
+        disp('imgs is not initialized')
+    end
 endfunction
 
 //UTILITY FUNCTIONS
@@ -45,7 +50,6 @@ function imgs = resizeEigenfaces(eigenfaces)
         img = matrix(eigenfaces_show(:,ii),56,46);
         imgs = [imgs img]
     end
-    afficherImage(imgs)
 endfunction
 
 // resize image, image size must be 56.x,46.y
@@ -83,6 +87,8 @@ function T = loadImages(base_path,nbImages)
         if size(items,1) < nbImages then
             error(['Not enough images into foldes -- loadImages';folders_images]);
         end
+        //fisrt images
+//        rn = [1:size(items,1)];
         //randomization
         rn = grand(1, "prm", (1:size(items,1)));
         rn = rn(1:1:nbImages);

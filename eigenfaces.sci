@@ -1,36 +1,38 @@
 function overallAccuracy(max_imgs)
     //to get better result redo overall accuracy and plot
     [base_path,att_faces,path_data,classes] = initialization();
-    
-    overall_accuracy = zeros(1,max_imgs);
-    winH=waitbar('Work in progress');
-    percent = 0;
-    img_eigenfaces = [];
-    disp(strcat(['Start image analysis with  :',string(max_imgs),' image(s)']));
-    for i = 1 : max_imgs
-        
-        //LEARNING
-        disp(strcat(['learning :',string(i)]));
-        confusion_matrix = zeros(size(classes,2),size(classes,2));
-        tic();
-        [m,s,eigenfaces] = learning(i);
-        disp(strcat(['time :', string(toc())]));
-        img_eigenfaces = [img_eigenfaces resizeEigenfaces(eigenfaces)]
-        
-        tic();
-        disp('TEST');
-        for k = 1 : size(classes,2)
-            [distance,img_classes] = startRecognition(classes(1,k));
-            for l = 1 : size(img_classes,1)
-                x = find(classes==classes(1,k));
-                confusion_matrix(x,img_classes(l)) = confusion_matrix(x,img_classes(l)) + 1;
+//    for j = 1 : 10
+        overall_accuracy = zeros(1,max_imgs);
+//        winH=waitbar('Work in progress');
+        percent = 0;
+        img_eigenfaces = [];
+        disp(strcat(['Start image analysis with  :',string(max_imgs),' image(s)']));
+        for i = 1 : max_imgs
+            
+            //LEARNING
+            disp(strcat(['learning :',string(i)]));
+            confusion_matrix = zeros(size(classes,2),size(classes,2));
+            tic();
+            [m,s,eigenfaces] = learning(i);
+            disp(strcat(['time :', string(toc())]));
+//            img_eigenfaces = [img_eigenfaces resizeEigenfaces(eigenfaces)]
+            
+            tic();
+            disp('TEST');
+            for k = 1 : size(classes,2)
+                [distance,img_classes,imgs] = launchRecognition(classes(1,k));
+                for l = 1 : size(img_classes,1)
+                    x = find(classes==classes(1,k));
+                    confusion_matrix(x,img_classes(l)) = confusion_matrix(x,img_classes(l)) + 1;
+                end
+//                percent = grothWaitBar(percent,max_imgs*size(classes,2),winH)
             end
-            percent = grothWaitBar(percent,max_imgs*size(classes,2),winH)
+            disp(strcat(['time :', string(toc())]));
+            overall_accuracy(j,i) = trace(confusion_matrix)/sum(confusion_matrix)
         end
-        disp(strcat(['time :', string(toc())]));
-        overall_accuracy(1,i) = trace(confusion_matrix)/sum(confusion_matrix)
-    end
-    close(winH);
+//        close(winH);
+//    end
+    
     
     //eigenface display
     img_eigenfaces=repmat(img_eigenfaces,max_imgs,1)
@@ -43,31 +45,22 @@ function overallAccuracy(max_imgs)
     xtitle("overall accuracy")
 endfunction
 
-function faceDetection(nb_imgs_base)
+function faceDetection(nb_imgs_base)   
     
-    //improvement use big img and visagedetect
-    //resizeImg(a, [56 46])
-    //
-///////////////////////////////TODO/////////////////////////////////////////////
-//      threshold ? 
-//      calculte dist between 
-//      original and recreate
-///////////////////////////////TODO/////////////////////////////////////////////
-//    threshold = startRecognition();
-    
-    
-    winH=waitbar('Recogntion in progress');
+    winH=waitbar('Work in progress');
     [base_path,att_faces,path_data,classes] = initialization();
     percent = 0;
     images = [];
     m = loadData(path_data,'m','double');
     s = loadData(path_data,'s','double');
     for k = 1 : nb_imgs_base
+        //learning
         startLearning(k);
         imgs_used = loadData(path_data,'imgs','double');
         [imgs,img_name] = loadTestFacesImages(strcat([base_path,"/img_test"]));
         
         for i=1 : size(imgs,1)
+            //distance calculation
             [dist,c,image_test_p] = testFace(imgs(i,:),size(imgs_used,2))
             img_pro(i,:)=image_test_p;
             images = [images resizeImg(imgs(i,:)) imageReconstruction(image_test_p)]
@@ -78,7 +71,8 @@ function faceDetection(nb_imgs_base)
             img_rec = transformIntoVector(imageReconstruction(img_pro(i,:)));
             img_ori=normalization(img_ori,m,s);
             img_rec=normalization(img_rec,m,s);
-            eucli_dist(i,k) = norm(img_ori - img_rec);
+            //ca
+            eucli_dist(i,k) = norm(img_ori)-norm(img_rec);
             percent = grothWaitBar(percent,nb_imgs_base*size(imgs,1),winH);
         end
     end
