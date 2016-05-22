@@ -1,7 +1,7 @@
 # Image_analysis
 project Enssat 
 
-change base_path variable by your path ptah to this directory.
+change base_path variable in the fonction initialization (utility.sce) by your path to this directory.
 
 ###### scilab command : 
 
@@ -9,6 +9,15 @@ change base_path variable by your path ptah to this directory.
 overallAccuracy(n)
 ```
 >Test overall accuracy, return a figure of the overall accuracy of the recognition per class
+
+  - n : (int) images used to build learning base. 
+  
+
+
+```
+faceDetection(n)
+```
+>work concerning face detection
 
   - n : (int) images used to build learning base. 
 
